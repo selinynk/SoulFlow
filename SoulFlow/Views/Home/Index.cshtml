@@ -1,0 +1,526 @@
+﻿@model IEnumerable<SoulFlow.Models.Event>
+
+@{
+    ViewData["Title"] = "Keşfet";
+}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, var(--nature-teal) 0%, #55efc4 50%, var(--love-coral) 100%);
+        width: 99%;
+        max-width: 100%;
+        margin: 0 auto 40px;
+        padding: 40px 10px 0px;
+        color: white;
+        text-align: center;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 184, 148, 0.15);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .hero-section::before, .hero-section::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 0;
+        }
+
+        .hero-section::before {
+            width: 400px;
+            height: 400px;
+            top: -200px;
+            left: -100px;
+        }
+
+        .hero-section::after {
+            width: 300px;
+            height: 300px;
+            bottom: -150px;
+            right: -50px;
+        }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 900px;
+        margin-bottom: 30px;
+    }
+
+    .hero-title {
+        font-size: 2.8rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        line-height: 1.2;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        letter-spacing: 1px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        opacity: 0.95;
+        font-weight: 400;
+        line-height: 1.5;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .site-symbol {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        opacity: 0.95;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+
+    .search-box-container {
+        background: white;
+        padding: 5px 8px;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+        max-width: 800px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        position: relative;
+        z-index: 2;
+    }
+
+    .search-input {
+        border: none;
+        background: transparent;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        flex-grow: 1;
+        outline: none;
+        color: var(--text-dark);
+    }
+
+    .divider {
+        width: 1px;
+        height: 20px;
+        background-color: #eee;
+        margin: 0 5px;
+    }
+
+    .btn-search {
+        background: linear-gradient(45deg, var(--love-coral), var(--passion-red));
+        color: white;
+        border: none;
+        padding: 8px 30px;
+        border-radius: 50px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        transition: transform 0.2s;
+    }
+
+        .btn-search:hover {
+            transform: scale(1.05);
+        }
+
+    .stats-bar {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(5px);
+        padding: 15px 0;
+        margin-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: white;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.9);
+        font-weight: 500;
+    }
+
+    .ai-feature-section {
+        background: linear-gradient(135deg, #e3fdf5 0%, #fff 100%);
+        border-radius: 30px;
+        padding: 50px;
+        margin-bottom: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid rgba(0, 184, 148, 0.1);
+    }
+
+    .ai-badge {
+        background: rgba(255, 118, 117, 0.1);
+        color: var(--passion-red);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .btn-ai-action {
+        background: linear-gradient(45deg, var(--love-coral), var(--passion-red));
+        color: white;
+        padding: 12px 30px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        border: none;
+    }
+
+    .ai-visual-card {
+        background: linear-gradient(135deg, var(--nature-teal) 0%, var(--social-green) 100%);
+        width: 200px;
+        height: 220px;
+        border-radius: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(-5deg);
+    }
+
+    .score-box {
+        background: white;
+        width: 140px;
+        height: 140px;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .match-badge {
+        background: var(--text-dark);
+        color: white;
+        font-size: 0.8rem;
+        padding: 5px 15px;
+        border-radius: 20px;
+        margin-top: -15px;
+        z-index: 2;
+        font-weight: 700;
+    }
+
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 15px;
+    }
+
+    .event-card {
+        border: none;
+        border-radius: 20px;
+        background: white;
+        transition: transform 0.3s, box-shadow 0.3s;
+        overflow: hidden;
+    }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
+
+    .host-link:hover {
+        color: var(--nature-teal) !important;
+        text-decoration: underline !important;
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .animate-pulse {
+        animation: pulse 1.5s infinite;
+    }
+</style>
+
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="site-symbol"><i class="fa-solid fa-ankh"></i></div>
+
+        <h1 class="hero-title">Ruhuna İyi Gelecek Etkinlikleri Keşfet</h1>
+        <p class="hero-subtitle">Seninle aynı frekanstaki insanlarla tanış, yeni hobiler edin.</p>
+
+        <form asp-controller="Home" asp-action="Index" method="get">
+            <div class="search-box-container">
+                <i class="fa-solid fa-magnifying-glass text-muted ms-3"></i>
+                <input type="text" name="searchKeyword" class="search-input" placeholder="Etkinlik, grup ara...">
+                <div class="divider d-none d-md-block"></div>
+                <i class="fa-solid fa-location-dot text-muted ms-2"></i>
+                <input type="text" id="locationInput" name="searchLocation" class="search-input" placeholder="Konum" autocomplete="off">
+                <button type="button" class="btn btn-light rounded-circle text-primary me-2 btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#mapModal" style="width:35px; height:35px;">
+                    <i class="fa-solid fa-map"></i>
+                </button>
+                <button type="submit" class="btn-search">Ara</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-number">2,500+</span>
+            <span class="stat-label">Aktif Üye</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">850+</span>
+            <span class="stat-label">Etkinlik</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">120+</span>
+            <span class="stat-label">Topluluk</span>
+        </div>
+    </div>
+</section>
+
+<div class="ai-feature-section">
+    <div class="ps-4">
+        <div class="ai-badge">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Yapay Zeka Destekli
+        </div>
+        <h2 class="fw-bold mb-3" style="color: var(--text-dark);">Sana Mükemmel Uygun Etkinlikleri Bul</h2>
+        <p class="text-muted mb-4" style="max-width: 600px;">
+            Akıllı uyumluluk sistemimiz, ilgi alanlarını ve geçmiş etkinliklerini analiz ederek
+            gerçekten ait olacağın etkinlikleri gösterir.
+        </p>
+
+        <a href="#" class="btn-ai-action" data-bs-toggle="modal" data-bs-target="#aiLoadingModal">
+            <i class="fa-solid fa-arrow-trend-up me-2"></i> Eşleşmelerimi Keşfet
+        </a>
+
+    </div>
+
+    <div class="d-none d-md-flex flex-column align-items-center me-5">
+        <div class="ai-visual-card">
+            <div class="score-box">
+                <span class="score-text" style="color: var(--nature-teal);">%92</span>
+                <span class="score-label">Eşleşme Skoru</span>
+            </div>
+        </div>
+        <div class="match-badge">Ruh Eşleşmesi!</div>
+    </div>
+</div>
+
+<div class="row g-4">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4">
+                <div class="card event-card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl"
+                             class="card-img-top"
+                             alt="@item.Title"
+                             style="height: 200px; object-fit: cover; width: 100%;">
+                    }
+                    else
+                    {
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fa-regular fa-image fa-3x text-muted"></i>
+                            <span class="ms-2 text-muted">Görsel Yok</span>
+                        </div>
+                    }
+
+                    <div class="position-absolute top-0 end-0 m-3 px-3 py-2 rounded-3 text-white fw-bold shadow-sm"
+                         style="background: var(--love-coral);">
+                        <i class="fa-regular fa-calendar me-1"></i> @item.Date.ToString("dd MMM")
+                    </div>
+
+                    <div class="card-body p-4 pt-4 mt-2">
+                        <h5 class="card-title fw-bold mb-3">@item.Title</h5>
+                        <p class="card-text text-muted mb-4 small">
+                            @(item.Description.Length > 80 ? item.Description.Substring(0, 80) + "..." : item.Description)
+                        </p>
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fa-regular fa-clock text-warning me-2"></i>
+                                <span>@item.Date.ToString("HH:mm")</span>
+                            </div>
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fa-solid fa-location-dot me-2" style="color: var(--love-coral);"></i>
+                                <span>@item.Location</span>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-auto">
+                            <div class="d-flex align-items-center gap-2">
+
+                                @if (item.Host != null && !string.IsNullOrEmpty(item.Host.ProfileImage))
+                                {
+                                    <img src="/images/profiles/@item.Host.ProfileImage"
+                                         class="rounded-circle border border-2 border-white shadow-sm"
+                                         width="35" height="35" style="object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <img src="https://ui-avatars.com/api/?name=@(item.Host != null ? item.Host.UserName : "A")&background=random&color=fff"
+                                         class="rounded-circle border border-2 border-white shadow-sm" width="35" height="35">
+                                }
+
+                                <small class="fw-bold">
+                                    @if (item.Host != null)
+                                    {
+                                        <a asp-controller="Account" asp-action="UserProfile" asp-route-username="@item.Host.UserName"
+                                           class="text-decoration-none text-muted host-link">
+                                            @item.Host.UserName
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Gizli</span>
+                                    }
+                                </small>
+                            </div>
+
+                            <a asp-controller="Event" asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
+                                İncele <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center py-5">
+            <i class="fa-solid fa-wind fa-3x text-muted opacity-25 mb-3"></i>
+            <h4 class="text-muted fw-light">Henüz etkinlik yok.</h4>
+            <a asp-controller="Event" asp-action="Create" class="btn text-white mt-3 px-4 py-2 rounded-pill shadow-sm" style="background: var(--nature-teal);">
+                <i class="fa-solid fa-plus me-2"></i>İlkini Sen Oluştur
+            </a>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-primary">Konum Seç</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="map"></div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-dismiss="modal">Tamam</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="aiLoadingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-body text-center p-5">
+                <i class="fa-solid fa-brain fa-3x mb-4 text-primary animate-pulse"></i>
+                <h4 class="fw-bold mb-3">Eşleşmelerin Analiz Ediliyor...</h4>
+                <p class="text-muted">Bu, ruh eşleşmeni bulmak için geçmiş etkinliklerini ve ilgi alanlarını değerlendiriyor.</p>
+                <div class="progress mt-4">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                         role="progressbar"
+                         style="width: 0%"
+                         aria-valuenow="0"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                         id="progressAiBar">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var map;
+        var marker;
+        var mapModal = document.getElementById('mapModal');
+        mapModal.addEventListener('shown.bs.modal', function () {
+            if (map) { map.invalidateSize(); return; }
+            map = L.map('map').setView([41.0082, 28.9784], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+            map.on('click', function(e) {
+                var lat = e.latlng.lat;
+                var lng = e.latlng.lng;
+                if (marker) map.removeLayer(marker);
+                marker = L.marker([lat, lng]).addTo(map);
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        var a = data.address;
+                        var loc = a.city || a.town || a.village || a.state || a.country;
+                        document.getElementById('locationInput').value = loc;
+                        marker.bindPopup(`Seçildi: ${loc}`).openPopup();
+                    });
+            });
+        });
+    });
+
+    var aiModal = document.getElementById('aiLoadingModal');
+    var progressBar = document.getElementById('progressAiBar');
+    var targetUrl = '@Url.Action("Matches", "Event")';
+
+    aiModal.addEventListener('show.bs.modal', function () {
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', 0);
+
+        var progress = 0;
+        var interval = setInterval(function() {
+            progress += 10;
+            if (progress > 100) {
+                clearInterval(interval);
+                setTimeout(function() {
+                    var modalInstance = bootstrap.Modal.getInstance(aiModal);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                    window.location.href = targetUrl;
+                }, 500);
+                return;
+            }
+
+            progressBar.style.width = progress + '%';
+            progressBar.setAttribute('aria-valuenow', progress);
+
+        }, 200);
+    });
+</script>

@@ -1,0 +1,193 @@
+﻿@using System.Security.Claims
+@model SoulFlow.Models.Event
+
+@{
+    ViewData["Title"] = Model.Title;
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    int currentCount = Model.Participants?.Count ?? 0;
+    int quota = Model.Quota;
+    int percentage = quota > 0 ? (int)((double)currentCount / quota * 100) : 0;
+
+    bool isJoined = Model.Participants != null && Model.Participants.Any(p => p.UserId == currentUserId);
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" class="w-100" style="height: 400px; object-fit: cover;" alt="@Model.Title">
+                }
+                else
+                {
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <i class="fa-regular fa-image fa-4x text-muted"></i>
+                    </div>
+                }
+
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h2 class="fw-bold text-dark">@Model.Title</h2>
+                        @if (Model.Date < DateTime.Now)
+                        {
+                            <span class="badge bg-secondary fs-6">Geçmiş Etkinlik</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success fs-6">Aktif</span>
+                        }
+                    </div>
+
+                    <div class="d-flex gap-4 mb-4 text-muted">
+                        <div><i class="fa-regular fa-calendar text-warning me-2"></i> @Model.Date.ToString("dd MMMM yyyy")</div>
+                        <div><i class="fa-regular fa-clock text-warning me-2"></i> @Model.Date.ToString("HH:mm")</div>
+                        <div><i class="fa-solid fa-location-dot text-danger me-2"></i> @Model.Location</div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3 text-dark">Etkinlik Detayları</h5>
+                    <p class="text-muted" style="line-height: 1.8;">
+                        @Model.Description
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <h4 class="fw-bold mb-4">Yorumlar (@(Model.Comments?.Count ?? 0))</h4>
+
+                @if (Model.Comments != null && Model.Comments.Any())
+                {
+                    <div class="mb-4">
+                        @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
+                        {
+                            <div class="d-flex gap-3 mb-3 border-bottom pb-3">
+
+                                @* *@
+                                @if (comment.User != null && !string.IsNullOrEmpty(comment.User.ProfileImage))
+                                {
+                                    <img src="/images/profiles/@comment.User.ProfileImage"
+                                         class="rounded-circle shadow-sm"
+                                         width="45" height="45" style="object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <img src="https://ui-avatars.com/api/?name=@(comment.User?.UserName ?? "U")&background=random&color=fff"
+                                         class="rounded-circle shadow-sm" width="45" height="45">
+                                }
+                                @*  *@
+
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <h6 class="fw-bold mb-0">@(comment.User?.UserName ?? "Anonim")</h6>
+                                        <small class="text-muted" style="font-size: 0.8rem;">@comment.CreatedAt.ToString("dd MMM HH:mm")</small>
+                                    </div>
+                                    <p class="mb-0 text-muted small">@comment.Content</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-3">Henüz yorum yapılmamış. İlk yorumu sen yap!</p>
+                }
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <form asp-action="AddComment" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" name="content" placeholder="Yorumunu buraya yaz..." style="height: 100px" required></textarea>
+                            <label>Etkinlik hakkında ne düşünüyorsun?</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                            <i class="fa-solid fa-paper-plane me-2"></i> Gönder
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-light text-center">
+                        Yorum yapabilmek için giriş yapmalısın.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+                <h5 class="fw-bold mb-3">Katılım Durumu</h5>
+
+                <div class="progress mb-2" style="height: 10px;">
+                    <div class="progress-bar" role="progressbar" style="width: @percentage%; background-color: var(--love-coral);"
+                         aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between text-muted small mb-4">
+                    <span>@currentCount Katılımcı</span>
+                    <span>Kontenjan: @quota</span>
+                </div>
+
+                @if (currentUserId == Model.HostId)
+                {
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning fw-bold py-2 rounded-pill">
+                            <i class="fa-solid fa-pen me-2"></i> Etkinliği Düzenle
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger fw-bold py-2 rounded-pill">
+                            <i class="fa-solid fa-trash me-2"></i> Etkinliği Sil
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    if (isJoined)
+                    {
+                        <button class="btn btn-success w-100 py-2 rounded-pill fw-bold" disabled>
+                            <i class="fa-solid fa-check me-2"></i> Zaten Katıldın
+                        </button>
+                        <small class="text-center text-muted d-block mt-2">Bu etkinlik takvimine eklendi.</small>
+                    }
+                    else if (currentCount >= quota)
+                    {
+                        <button class="btn btn-secondary w-100 py-2 rounded-pill fw-bold" disabled>
+                            <i class="fa-solid fa-lock me-2"></i> Kontenjan Dolu
+                        </button>
+                    }
+                    else
+                    {
+                        <form asp-action="Join" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn w-100 py-2 rounded-pill fw-bold text-white shadow-sm"
+                                    style="background: linear-gradient(45deg, var(--nature-teal), #55efc4);">
+                                <i class="fa-solid fa-hand-sparkles me-2"></i> Ben de Geliyorum!
+                            </button>
+                        </form>
+                    }
+                }
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4 p-4 text-center">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">Etkinlik Sahibi</h6>
+
+                @if (Model.Host != null && !string.IsNullOrEmpty(Model.Host.ProfileImage))
+                {
+                    <img src="/images/profiles/@Model.Host.ProfileImage" class="rounded-circle mb-3 shadow-sm"
+                         width="80" height="80" style="object-fit: cover;">
+                }
+                else
+                {
+                    <img src="https://ui-avatars.com/api/?name=@(Model.Host != null ? Model.Host.UserName : "A")&background=random&color=fff"
+                         class="rounded-circle mb-3 shadow-sm" width="80" height="80">
+                }
+
+                <h5 class="fw-bold">@(Model.Host != null ? Model.Host.UserName : "Bilinmiyor")</h5>
+                <a asp-controller="Account" asp-action="UserProfile" asp-route-username="@(Model.Host?.UserName)"
+                   class="btn btn-sm btn-outline-primary rounded-pill px-4 mt-2">Profili Gör</a>
+            </div>
+
+        </div>
+    </div>
+</div>

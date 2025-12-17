@@ -1,0 +1,88 @@
+﻿@model SoulFlow.Models.ProfileViewModel
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow rounded-4 border-0 overflow-hidden">
+
+                <div class="card-header text-center py-5 position-relative" style="background: linear-gradient(135deg, var(--nature-teal), var(--social-green));">
+                    <div class="position-absolute top-100 start-50 translate-middle">
+                        @if (!string.IsNullOrEmpty(Model.ProfileImage))
+                        {
+                            <img src="/images/profiles/@Model.ProfileImage"
+                                 class="rounded-circle border border-4 border-white shadow"
+                                 style="width: 130px; height: 130px; object-fit: cover; background: white;">
+                        }
+                        else
+                        {
+                            <img src="https://ui-avatars.com/api/?name=@Model.Username&background=fff&color=00b894&size=130&bold=true"
+                                 class="rounded-circle border border-4 border-white shadow">
+                        }
+                    </div>
+                </div>
+
+                <div class="card-body p-4 pt-5 mt-4 text-center">
+                    <h2 class="fw-bold mt-2">@Model.Username</h2>
+
+                    <p class="text-muted" style="max-width: 500px; margin: 0 auto;">
+                        @(Model.Bio ?? "Bu kullanıcı henüz kendini tanıtan bir yazı yazmamış.")
+                    </p>
+
+                    <hr class="my-4 mx-auto" style="width: 50%; opacity: 0.1;">
+
+                    <h5 class="fw-bold text-muted mb-3 small text-uppercase ls-1">İlgi Alanları</h5>
+
+                    <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+                        @if (!string.IsNullOrEmpty(Model.UserInterests))
+                        {
+                            foreach (var ilgi in Model.UserInterests.Split(','))
+                            {
+                                if (!string.IsNullOrWhiteSpace(ilgi))
+                                {
+                                    <span class="badge rounded-pill px-3 py-2 fw-normal"
+                                          style="background-color: #f1f2f6; color: var(--text-dark); border: 1px solid #dfe6e9;">
+                                        @ilgi.Trim()
+                                    </span>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted fst-italic small">Belirtilmemiş.</span>
+                        }
+                    </div>
+
+                    @if (Model.MyEvents != null && Model.MyEvents.Any())
+                    {
+                        <div class="text-start mt-5">
+                            <h5 class="fw-bold mb-3 ps-2 border-start border-4 border-warning">
+                                Oluşturduğu Etkinlikler
+                            </h5>
+                            <div class="list-group rounded-3 shadow-sm">
+                                @foreach (var item in Model.MyEvents)
+                                {
+                                    <a asp-controller="Event" asp-action="Details" asp-route-id="@item.Id"
+                                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3 border-0 border-bottom">
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">@item.Title</h6>
+                                            <small class="text-muted">@item.Date.ToString("dd MMMM yyyy")</small>
+                                        </div>
+                                        <i class="fa-solid fa-chevron-right text-muted small"></i>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                </div>
+
+                <div class="card-footer text-center bg-white border-0 pb-4 pt-0">
+                    <a href="/" class="btn btn-light rounded-pill px-4 text-muted">
+                        <i class="fa-solid fa-arrow-left me-2"></i> Geri Dön
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

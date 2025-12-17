@@ -1,0 +1,129 @@
+﻿@model IEnumerable<SoulFlow.Models.Event>
+
+@{
+    ViewData["Title"] = "Eşleşmelerim";
+    
+}
+
+<style>
+   
+    .event-card {
+        border: none;
+        border-radius: 20px;
+        background: white;
+        transition: transform 0.3s, box-shadow 0.3s;
+        overflow: hidden;
+    }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
+
+    .host-link:hover {
+        color: var(--nature-teal) !important;
+        text-decoration: underline !important;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="d-flex align-items-center mb-4">
+        <i class="fa-solid fa-arrow-trend-up fa-2x me-3" style="color: var(--love-coral);"></i>
+        <h1 class="display-4 fw-bold" style="color: var(--love-coral);">Ruh Eşleşmeleri Senin İçin Hazır!</h1>
+    </div>
+
+    <p class="lead text-muted mb-5">Akıllı sistemimiz tarafından ilgi alanlarına göre seçilen sana özel etkinlikler:</p>
+
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card event-card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl"
+                                 class="card-img-top"
+                                 alt="@item.Title"
+                                 style="height: 200px; object-fit: cover; width: 100%;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fa-regular fa-image fa-3x text-muted"></i>
+                                <span class="ms-2 text-muted">Görsel Yok</span>
+                            </div>
+                        }
+
+                        <div class="position-absolute top-0 end-0 m-3 px-3 py-2 rounded-3 text-white fw-bold shadow-sm"
+                             style="background: var(--love-coral);">
+                            <i class="fa-regular fa-calendar me-1"></i> @item.Date.ToString("dd MMM")
+                        </div>
+
+                        <div class="card-body p-4 pt-4 mt-2">
+                            <h5 class="card-title fw-bold mb-3">@item.Title</h5>
+                            <p class="card-text text-muted mb-4 small">
+                                @(item.Description.Length > 80 ? item.Description.Substring(0, 80) + "..." : item.Description)
+                            </p>
+                            <div class="d-flex flex-column gap-2 mb-4">
+                                <div class="d-flex align-items-center text-muted small">
+                                    <i class="fa-regular fa-clock text-warning me-2"></i>
+                                    <span>@item.Date.ToString("HH:mm")</span>
+                                </div>
+                                <div class="d-flex align-items-center text-muted small">
+                                    <i class="fa-solid fa-location-dot me-2" style="color: var(--love-coral);"></i>
+                                    <span>@item.Location</span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-auto">
+                                <div class="d-flex align-items-center gap-2">
+
+                                    @if (item.Host != null && !string.IsNullOrEmpty(item.Host.ProfileImage))
+                                    {
+                                        <img src="/images/profiles/@item.Host.ProfileImage"
+                                             class="rounded-circle border border-2 border-white shadow-sm"
+                                             width="35" height="35" style="object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <img src="https://ui-avatars.com/api/?name=@(item.Host != null ? item.Host.UserName : "A")&background=random&color=fff"
+                                             class="rounded-circle border border-2 border-white shadow-sm" width="35" height="35">
+                                    }
+
+                                    <small class="fw-bold">
+                                        @if (item.Host != null)
+                                        {
+                                            <a asp-controller="Account" asp-action="UserProfile" asp-route-username="@item.Host.UserName"
+                                               class="text-decoration-none text-muted host-link">
+                                                @item.Host.UserName
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Gizli</span>
+                                        }
+                                    </small>
+                                </div>
+
+                                <a asp-controller="Event" asp-action="Details" asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
+                                    İncele <i class="fa-solid fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="fa-solid fa-face-sad-tear fa-3x text-muted opacity-50 mb-3" style="color: var(--passion-red) !important;"></i>
+                <h4 class="text-muted fw-light mt-3">Maalesef sana uygun bir eşleşme bulunamadı.</h4>
+                <p class="small text-muted">Daha fazla etkinlik oluşturulduğunda tekrar deneyebilirsin!</p>
+            </div>
+        }
+    </div>
+</div>

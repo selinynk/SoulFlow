@@ -1,0 +1,602 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SoulFlow.Models
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SoulFlow</title>
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2310b981;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23ef4444;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='40' fill='white'%3E%E2%98%A5%3C/text%3E%3C/svg%3E" type="image/svg+xml">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --love-coral: #ff7675;
+            --passion-red: #d63031;
+            --social-green: #55efc4;
+            --nature-teal: #00b894;
+            --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #e3fdf5 100%);
+            --text-dark: #2d3436;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-dark);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: var(--text-dark) !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--nature-teal), var(--love-coral));
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 10px rgba(0, 184, 148, 0.3);
+        }
+
+        .nav-link {
+            color: #636e72 !important;
+            font-weight: 600;
+            margin: 0 15px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+            .nav-link:hover {
+                color: var(--love-coral) !important;
+                transform: translateY(-1px);
+            }
+
+        .btn-create {
+            background: linear-gradient(45deg, var(--love-coral), var(--passion-red));
+            color: white !important;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(214, 48, 49, 0.3);
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+            .btn-create:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(214, 48, 49, 0.4);
+                background: linear-gradient(45deg, var(--nature-teal), var(--social-green));
+            }
+
+        .icon-action {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            margin-left: 20px;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+            .icon-action:hover {
+                color: var(--love-coral);
+            }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 9px;
+            height: 9px;
+            background: var(--passion-red);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .nav-profile-img {
+            width: 38px;
+            height: 38px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+            .nav-profile-img:hover {
+                transform: scale(1.1);
+                border-color: var(--nature-teal);
+            }
+
+        .footer-compact {
+            background: linear-gradient(to right, #2d3436, #1e272e);
+            border-top: 4px solid var(--love-coral);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        .footer-brand-text {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.4rem;
+            transition: opacity 0.3s;
+        }
+
+            .footer-brand-text:hover {
+                color: #fff;
+                opacity: 0.9;
+            }
+
+        .footer-link {
+            color: #b2bec3;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            margin-right: 15px;
+            font-weight: 500;
+        }
+
+            .footer-link:hover {
+                color: var(--love-coral);
+            }
+
+        .social-btn {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 50%;
+            margin-left: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+            .social-btn:hover {
+                background: var(--love-coral);
+                color: white;
+                transform: translateY(-3px);
+            }
+
+        .newsletter-input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            font-size: 0.85rem;
+        }
+
+            .newsletter-input:focus {
+                background: rgba(255,255,255,0.2);
+                color: white;
+                border-color: var(--love-coral);
+                box-shadow: none;
+            }
+
+            .newsletter-input::placeholder {
+                color: rgba(255,255,255,0.5);
+            }
+
+        .btn-coral {
+            background-color: var(--love-coral);
+            color: white;
+            font-weight: 600;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .btn-coral:hover {
+                background-color: var(--passion-red);
+                color: white;
+            }
+
+        @@media (max-width: 991px) {
+            .footer-compact {
+                text-align: center;
+            }
+
+            .footer-link {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+
+        .ai-widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .ai-chat-box {
+            width: 300px;
+            max-height: 400px;
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-chat-header {
+            background: linear-gradient(45deg, var(--nature-teal), var(--love-coral));
+            color: white;
+            padding: 12px 15px;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .ai-message-area {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f7f7f7;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .message-user {
+            background-color: var(--love-coral);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-ai {
+            background-color: white;
+            color: var(--text-dark);
+            margin-right: auto;
+            border: 1px solid #eee;
+            border-top-left-radius: 5px;
+        }
+
+        .ai-input-area {
+            padding: 10px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg fixed-top">
+            <div class="container-fluid px-lg-5">
+
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <div class="logo-box">
+                        <i class="fa-solid fa-ankh"></i>
+                    </div>
+                    SoulFlow
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse justify-content-center">
+                    <ul class="navbar-nav align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Etkinliklere Göz At</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Communities">Mikro Topluluklar</a>
+                        </li>
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item ms-3">
+                                <a class="btn-create text-decoration-none" asp-controller="Event" asp-action="Create">
+                                    <i class="fa-solid fa-plus me-1"></i> Etkinlik Oluştur
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="navbar-collapse collapse justify-content-end" style="flex-grow: 0;">
+                    <ul class="navbar-nav align-items-center">
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item ms-3">
+                                <a class="btn btn-dark text-white fw-bold shadow-sm" asp-controller="Admin" asp-action="Index">
+                                    <i class="fa-solid fa-user-shield me-2"></i> Admin Paneli
+                                </a>
+                            </li>
+                        }
+
+                        @if (!SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="btn-create text-decoration-none" asp-controller="Account" asp-action="Login">
+                                    Giriş Yap
+                                </a>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <a class="icon-action" asp-controller="Home" asp-action="Index" title="Keşfet ve Ara">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="icon-action" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fa-regular fa-bell"></i>
+                                <span class="notification-badge"></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0 mt-3" style="border-radius: 15px; width: 320px; overflow: hidden;">
+                                <li class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-dark">Bildirimler</span>
+                                    <small class="text-primary" style="cursor:pointer;">Tümünü Oku</small>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item p-3 border-bottom d-flex align-items-start gap-3" href="#">
+                                        <div class="rounded-circle bg-success bg-opacity-10 text-success p-2">
+                                            <i class="fa-solid fa-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0 small fw-bold text-dark">Etkinliğin Onaylandı! 🎉</p>
+                                            <small class="text-muted" style="font-size: 0.75rem;">"Fotoğraf Çekimi" yayına alındı.</small>
+                                            <small class="d-block text-muted mt-1" style="font-size: 0.7rem;">2 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            var currentUser = await UserManager.GetUserAsync(User);
+
+                            <li class="nav-item dropdown ms-3">
+                                <a class="p-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @if (currentUser != null && !string.IsNullOrEmpty(currentUser.ProfileImage))
+                                    {
+                                        <img src="/images/profiles/@currentUser.ProfileImage" class="nav-profile-img" alt="@User.Identity.Name">
+                                    }
+                                    else
+                                    {
+                                        <img src="https://ui-avatars.com/api/?name=@User.Identity.Name&background=random&color=fff&size=38" class="nav-profile-img" alt="@User.Identity.Name">
+                                    }
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-3 mt-3" style="border-radius: 15px; min-width: 220px;">
+                                    <li class="px-3 py-2 border-bottom mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center overflow-hidden" style="width:35px; height:35px;">
+                                                @if (currentUser != null && !string.IsNullOrEmpty(currentUser.ProfileImage))
+                                                {
+                                                    <img src="/images/profiles/@currentUser.ProfileImage" style="width:100%; height:100%; object-fit:cover;">
+                                                }
+                                                else
+                                                {
+                                                    <img src="https://ui-avatars.com/api/?name=@User.Identity.Name&background=random&color=fff&size=35" style="width:100%; height:100%;">
+                                                }
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold d-block text-dark small">@User.Identity.Name</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item rounded-2 py-2" asp-controller="Account" asp-action="Profile">
+                                            <i class="fa-solid fa-id-card me-2 text-primary opacity-75"></i> Profilim
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item rounded-2 py-2 text-danger">
+                                                <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Çıkış Yap
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="icon-action" asp-controller="Account" asp-action="Login">
+                                    <i class="fa-regular fa-user"></i>
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+    <div class="container flex-grow-1" style="margin-top: 100px;">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show container mt-2 shadow-sm border-0" role="alert">
+                <i class="fa-solid fa-circle-check me-2"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show container mt-2 shadow-sm border-0" role="alert">
+                <i class="fa-solid fa-circle-exclamation me-2"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer-compact text-white pt-4 pb-4 mt-5">
+        <div class="container">
+            <div class="row align-items-center gy-4">
+
+                <div class="col-lg-4 text-center text-lg-start">
+                    <a href="#" class="footer-brand-text d-flex align-items-center justify-content-center justify-content-lg-start mb-2">
+                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #00b894, #ff7675); border-radius: 8px; display:flex; align-items:center; justify-content:center; margin-right:10px; font-size:1rem;">
+                            <i class="fa-solid fa-ankh"></i>
+                        </div>
+                        SoulFlow
+                    </a>
+                    <p class="small mb-0" style="color: var(--love-coral);">
+                        Yeni nesil sosyalleşme ve etkinlik platformu. <br>
+                        &copy; 2025 Tüm hakları saklıdır.
+                    </p>
+                </div>
+
+                <div class="col-lg-4 text-center">
+                    <div class="mb-3">
+                        <a href="#" class="footer-link">Etkinlikler</a>
+                        <a href="#" class="footer-link">Topluluklar</a>
+                        <a href="#" class="footer-link">Hakkımızda</a>
+                        <a href="#" class="footer-link">İletişim</a>
+                    </div>
+                    <div>
+                        <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="p-3 rounded-3" style="background: rgba(0,0,0,0.2);">
+                        <label class="small text-white-50 mb-2 fw-bold">🚀 Gelişmelerden haberdar ol</label>
+                        <div class="input-group">
+                            <input type="email" class="form-control newsletter-input" placeholder="E-posta adresin...">
+                            <button class="btn btn-coral" type="button">Abone Ol</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <div class="ai-widget-container">
+        <div class="ai-chat-box" id="aiChatBox">
+
+            <div class="ai-chat-header d-flex align-items-center justify-content-between">
+                <span class="fw-bold">
+                    <i class="fa-solid fa-robot me-2"></i> SoulFlow Asistan
+                </span>
+                <button onclick="toggleChat()" class="btn-close btn-close-white" aria-label="Kapat"></button>
+            </div>
+
+            <div class="ai-message-area" id="messageArea">
+                <div class="message-bubble message-ai">
+                    Merhaba! Ben SoulFlow Asistanınız. Size nasıl yardımcı olabilirim? (Örn: "Bu hafta sonu online etkinlikler neler?")
+                </div>
+            </div>
+
+            <div class="ai-input-area">
+                <input type="text" id="userInput" class="form-control form-control-sm" placeholder="Buraya yazın...">
+                <button class="btn btn-coral btn-sm" onclick="sendMessage()">Gönder</button>
+            </div>
+
+        </div>
+
+        <button onclick="toggleChat()" id="aiToggleButton" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+                style="width: 60px; height: 60px; background-color: #ff7675; border: none; transition: transform 0.3s;"
+                onmouseover="this.style.transform='scale(1.1)'"
+                onmouseout="this.style.transform='scale(1)'">
+            <i class="fa-solid fa-comments fa-lg"></i>
+        </button>
+    </div>
+
+    <script>
+        function toggleChat() {
+            const chatBox = document.getElementById("aiChatBox");
+            chatBox.style.display = (chatBox.style.display === 'flex') ? 'none' : 'flex';
+            if (chatBox.style.display === 'flex') {
+                document.getElementById('userInput').focus();
+            }
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const messageArea = document.getElementById('messageArea');
+            const userText = userInput.value.trim();
+
+            if (userText === "") return;
+
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message-bubble message-user';
+            userMessage.textContent = userText;
+            messageArea.appendChild(userMessage);
+
+            messageArea.scrollTop = messageArea.scrollHeight;
+
+            setTimeout(() => {
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message-bubble message-ai';
+
+                let response = "Anladım. Talebiniz ile ilgili etkinlikleri veri tabanımızda arıyorum. Lütfen bekleyiniz...";
+
+                if (userText.toLowerCase().includes("müzik") || userText.toLowerCase().includes("konser")) {
+                    response = "Harika! Müzik etkinliklerini ve konserleri filtreliyorum. En yakın sonuçları listeliyorum...";
+                } else if (userText.toLowerCase().includes("ücretsiz") || userText.toLowerCase().includes("bedava")) {
+                    response = "Bütçe dostu, ücretsiz etkinlikleri önceliklendiriyorum. Şehirdeki tüm ücretsiz buluşmalar listeleniyor...";
+                } else if (userText.toLowerCase().includes("yardım") || userText.toLowerCase().includes("şifre")) {
+                    response = "Destek talebinizi aldım. Sıkça sorulan sorulara göz atarken, ilgili ekibi bilgilendiriyorum.";
+                }
+
+                aiMessage.textContent = response;
+                messageArea.appendChild(aiMessage);
+                messageArea.scrollTop = messageArea.scrollHeight;
+            }, 1000);
+
+            userInput.value = '';
+        }
+    </script>
+</body>
+</html>

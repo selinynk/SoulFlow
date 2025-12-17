@@ -1,0 +1,82 @@
+﻿@model SoulFlow.Models.Event
+
+@{
+    ViewData["Title"] = "Etkinliği Düzenle";
+
+    
+    var ekrandaGorunecekTarih = Model.Date.Year < 2000 ? DateTime.Now : Model.Date;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-white py-3">
+                    <h3 class="fw-bold text-center" style="color: var(--nature-teal);">Etkinliği Düzenle</h3>
+                </div>
+                <div class="card-body p-4">
+
+                    <form asp-action="Edit" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Etkinlik Başlığı</label>
+                            <input asp-for="Title" class="form-control" required />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Tarih ve Saat</label>
+
+                                <input type="datetime-local"
+                                       name="tarihVerisi"
+                                       class="form-control"
+                                       value="@ekrandaGorunecekTarih.ToString("yyyy-MM-ddTHH:mm")"
+                                       required />
+
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Kontenjan</label>
+                                <input asp-for="Quota" class="form-control" type="number" min="1" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Konum</label>
+                            <input asp-for="Location" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mevcut Görsel</label>
+                            <div class="mb-2">
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <img src="@Model.ImageUrl" class="img-thumbnail rounded" style="max-height: 200px" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Görsel yok</span>
+                                }
+                            </div>
+                            <label class="form-label fw-bold">Yeni Görsel Yükle (Değiştirmek istersen)</label>
+                            <input type="file" asp-for="ImageFile" class="form-control" accept="image/*" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Açıklama</label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning fw-bold py-2 rounded-pill text-white">
+                                <i class="fa-solid fa-pen-to-square me-2"></i> Değişiklikleri Kaydet
+                            </button>
+                            <a asp-action="Index" class="btn btn-light rounded-pill">İptal</a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,185 @@
+﻿@model SoulFlow.Models.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Aramıza Katıl";
+}
+
+<style>
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .step-dot {
+        width: 15px;
+        height: 15px;
+        background-color: #e0e0e0;
+        border-radius: 50%;
+        margin: 0 5px;
+        transition: all 0.3s;
+    }
+
+        .step-dot.active {
+            background-color: var(--nature-teal);
+            transform: scale(1.2);
+        }
+
+    
+    .btn-check:checked + .interest-label {
+        background-color: var(--nature-teal);
+        color: white;
+        border-color: var(--nature-teal);
+        box-shadow: 0 5px 15px rgba(0, 184, 148, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .interest-label {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 5px;
+        border: 2px solid #e0e0e0;
+        border-radius: 50px;
+        color: #636e72;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+        user-select: none;
+    }
+
+        .interest-label:hover {
+            border-color: var(--nature-teal);
+            color: var(--nature-teal);
+        }
+
+        .interest-label i {
+            margin-right: 5px;
+        }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+
+                <div class="card-header border-0 text-center py-4" style="background: linear-gradient(135deg, var(--nature-teal), var(--love-coral));">
+                    <h2 class="fw-bold text-white mb-0"><i class="fa-solid fa-user-plus me-2"></i> Kayıt Ol</h2>
+                    <p class="text-white-50 mb-0 small">SoulFlow dünyasına adım at.</p>
+                </div>
+
+                <div class="card-body p-5 bg-white">
+
+                    <div class="step-indicator">
+                        <div class="step-dot active" id="dot1"></div>
+                        <div class="step-dot" id="dot2"></div>
+                    </div>
+
+                    <form asp-action="Register" method="post" id="registerForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div id="step1">
+                            <h5 class="fw-bold text-center mb-4 text-muted">Hesap Bilgileri</h5>
+
+                            <div class="form-floating mb-3">
+                                <input asp-for="UserName" class="form-control rounded-3" placeholder="Kullanıcı Adı" required />
+                                <label asp-for="UserName" class="text-muted">Kullanıcı Adı</label>
+                                <span asp-validation-for="UserName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input asp-for="Email" class="form-control rounded-3" placeholder="name@example.com" required />
+                                <label asp-for="Email" class="text-muted">E-Posta Adresi</label>
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input asp-for="Password" class="form-control rounded-3" placeholder="Şifre" required />
+                                <label asp-for="Password" class="text-muted">Şifre</label>
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-floating mb-4">
+                                <input asp-for="ConfirmPassword" class="form-control rounded-3" placeholder="Şifre Tekrar" required />
+                                <label asp-for="ConfirmPassword" class="text-muted">Şifre (Tekrar)</label>
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="button" onclick="nextStep()" class="btn btn-lg text-white rounded-pill fw-bold"
+                                        style="background: var(--nature-teal);">
+                                    İlerle <i class="fa-solid fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="step2" style="display: none;">
+                            <h5 class="fw-bold text-center mb-3 text-muted">Nelerden Hoşlanırsın?</h5>
+                            <p class="text-center text-muted small mb-4">Sana en uygun etkinlikleri bulmamız için en az 3 tane seç.</p>
+
+                            <div class="text-center mb-4 d-flex flex-wrap justify-content-center gap-2">
+                                @{
+                                    var interests = new List<string> {
+                                                                "🧘 Yoga", "⛺ Kamp", "🎵 Konser", "🎭 Tiyatro", "🎨 Sanat",
+                                                                "☕ Kahve", "📚 Kitap", "💻 Yazılım", "📷 Fotoğraf", "🚲 Bisiklet",
+                                                                "🍳 Yemek", "🌱 Doğa", "💃 Dans", "🎮 Oyun", "✈️ Seyahat",
+                                                                "🎸 Müzik", "🍿 Sinema", "⚽ Futbol", "🏀 Basketbol", "🧘 Meditasyon"
+                                                                };
+                                }
+
+                                @foreach (var item in interests)
+                                {
+                                    <input type="checkbox" class="btn-check" name="SelectedInterests" value="@item.Substring(2)" id="int_@item.GetHashCode()" autocomplete="off">
+                                    <label class="interest-label" for="int_@item.GetHashCode()">@item</label>
+                                }
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="button" onclick="prevStep()" class="btn btn-outline-secondary rounded-pill px-4">
+                                    <i class="fa-solid fa-arrow-left me-2"></i> Geri
+                                </button>
+
+                                <button type="submit" class="btn btn-lg text-white rounded-pill px-5 fw-bold"
+                                        style="background: linear-gradient(45deg, var(--love-coral), var(--passion-red)); box-shadow: 0 4px 15px rgba(214, 48, 49, 0.3);">
+                                    Kaydı Tamamla ✨
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light text-center py-3 border-0">
+                    <small class="text-muted">Zaten hesabın var mı? <a asp-action="Login" class="text-decoration-none fw-bold" style="color: var(--nature-teal);">Giriş Yap</a></small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function nextStep() {
+        
+        var form = document.getElementById("registerForm");
+        if (form.checkValidity()) {
+            document.getElementById("step1").style.display = "none";
+            document.getElementById("step2").style.display = "block";
+
+            document.getElementById("dot1").classList.remove("active");
+            document.getElementById("dot2").classList.add("active");
+        } else {
+            form.reportValidity(); 
+        }
+    }
+
+    function prevStep() {
+        document.getElementById("step2").style.display = "none";
+        document.getElementById("step1").style.display = "block";
+
+        document.getElementById("dot2").classList.remove("active");
+        document.getElementById("dot1").classList.add("active");
+    }
+</script>

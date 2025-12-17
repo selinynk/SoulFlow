@@ -1,0 +1,135 @@
+﻿@model SoulFlow.Models.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Profilim";
+}
+
+<div class="container py-5">
+
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-2 text-center text-md-start">
+            @if (!string.IsNullOrEmpty(Model.ProfileImage))
+            {
+                <img src="/images/profiles/@Model.ProfileImage" class="img-fluid rounded-circle shadow-sm" alt="Profil Fotoğrafı" style="width: 100px; height: 100px; object-fit: cover;">
+            }
+            else
+            {
+                <img src="https://ui-avatars.com/api/?name=@Model.Username&background=random&color=fff&size=100" class="img-fluid rounded-circle shadow-sm" alt="Profil Fotoğrafı">
+            }
+        </div>
+        <div class="col-md-6">
+            <h1 class="fw-bold display-5 mb-1" style="color: var(--text-dark);">Merhaba, @Model.Username 👋</h1>
+            <p class="text-muted">@(Model.Bio ?? "Henüz bir biyografi eklenmemiş.")</p>
+            <a asp-action="EditProfile" class="btn btn-outline-secondary btn-sm rounded-pill mt-2">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Profili Düzenle
+            </a>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-controller="Event" asp-action="Create" class="btn btn-lg text-white rounded-pill px-4 shadow-sm" style="background: var(--love-coral);">
+                <i class="fa-solid fa-plus me-2"></i> Yeni Etkinlik Yap
+            </a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.UserInterests))
+    {
+        <div class="row mb-5">
+            <div class="col-md-12">
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var interest in Model.UserInterests.Split(','))
+                    {
+                        if (!string.IsNullOrWhiteSpace(interest))
+                        {
+                            <span class="badge rounded-pill px-3 py-2 fw-normal shadow-sm"
+                                  style="background-color: white; color: var(--nature-teal); border: 1px solid var(--nature-teal); font-size: 0.9rem;">
+                                @interest.Trim()
+                            </span>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row g-5">
+
+        <div class="col-md-6">
+            <h4 class="fw-bold mb-4 ps-2 border-start border-4 border-warning">👑 Yönettiğim Etkinlikler</h4>
+
+            @if (Model.MyEvents.Any())
+            {
+                <div class="list-group shadow-sm rounded-4 overflow-hidden">
+                    @foreach (var item in Model.MyEvents)
+                    {
+                        <div class="list-group-item list-group-item-action p-4 border-0 border-bottom d-flex justify-content-between align-items-center">
+
+                            <a asp-controller="Event" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-dark flex-grow-1">
+                                <div>
+                                    <h5 class="mb-1 fw-bold">@item.Title</h5>
+                                    <small class="text-muted"><i class="fa-regular fa-calendar me-1"></i> @item.Date.ToString("dd MMMM HH:mm")</small>
+                                </div>
+                            </a>
+
+                            <div class="d-flex gap-2">
+                                <a asp-controller="Event" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm rounded-circle shadow-sm" style="width: 40px; height: 40px; display:flex; align-items:center; justify-content:center;" title="Düzenle">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+
+                                <form asp-controller="Event" asp-action="Delete" asp-route-id="@item.Id" method="post"
+                                      onsubmit="return confirm('Bu etkinliği silmek istediğine emin misin?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle shadow-sm" style="width: 40px; height: 40px;" title="Sil">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-light text-center py-4 rounded-4">
+                    Henüz bir etkinlik oluşturmadın.
+                </div>
+            }
+        </div>
+
+        <div class="col-md-6">
+            <h4 class="fw-bold mb-4 ps-2 border-start border-4 border-success">🎫 Katıldığım Etkinlikler</h4>
+
+            @if (Model.JoinedEvents.Any())
+            {
+                <div class="list-group shadow-sm rounded-4 overflow-hidden">
+                    @foreach (var item in Model.JoinedEvents)
+                    {
+                        <div class="list-group-item list-group-item-action p-4 border-0 border-bottom d-flex justify-content-between align-items-center">
+
+                            <a asp-controller="Event" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-dark flex-grow-1">
+                                <div>
+                                    <h5 class="mb-1 fw-bold">@item.Title</h5>
+                                    <small class="text-muted"><i class="fa-solid fa-location-dot me-1"></i> @item.Location</small>
+                                </div>
+                            </a>
+
+                            <form asp-controller="Event" asp-action="Leave" asp-route-id="@item.Id" method="post"
+                                  onsubmit="return confirm('Ayrılmak istediğine emin misin?');">
+                                <button type="submit" class="btn btn-warning btn-sm rounded-circle shadow-sm ms-2 text-white" style="width: 40px; height: 40px;" title="Ayrıl">
+                                    <i class="fa-solid fa-person-walking-arrow-right"></i>
+                                </button>
+                            </form>
+
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-light text-center py-4 rounded-4">
+                    Henüz bir etkinliğe katılmadın.
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

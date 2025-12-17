@@ -1,0 +1,339 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> SignInManager
+
+@{
+    ViewData["Title"] = "Popüler Topluluklar";
+}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    .community-header-box {
+        position: relative;
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 40px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.03);
+        margin-bottom: 3rem;
+    }
+
+    .pattern-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(#ff6b6b 0.5px, transparent 0.5px);
+        background-size: 20px 20px;
+        opacity: 0.05;
+        z-index: 0;
+    }
+
+    .accent-line {
+        position: absolute;
+        left: 0;
+        top: 20px;
+        bottom: 20px;
+        width: 6px;
+        background: linear-gradient(to bottom, #ff6b6b, #ff9e9e);
+        border-radius: 0 4px 4px 0;
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+    }
+
+    .icon-box-lg {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);
+        color: #ff6b6b;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-right: 25px;
+    }
+
+    .header-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #2d3436;
+    }
+
+    .card-custom {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .card-custom:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+
+    .card-img-wrapper {
+        height: 160px;
+        overflow: hidden;
+        position: relative;
+    }
+
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .card-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #111;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        z-index: 2;
+    }
+
+    .card-icon-float {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin-top: -25px;
+        margin-left: 20px;
+        position: relative;
+        z-index: 3;
+    }
+
+    .card-body-custom {
+        padding: 0 20px 20px 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tag-soft {
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-right: 5px;
+        margin-bottom: 5px;
+        display: inline-block;
+    }
+
+    .btn-join {
+        width: 100%;
+        border: none;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        margin-top: auto;
+        transition: 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        display: block;
+    }
+
+    .btn-joined {
+        background-color: #10b981 !important;
+        color: white !important;
+        cursor: default;
+        pointer-events: none;
+    }
+
+    .btn-auth-needed {
+        background-color: #636e72 !important;
+        color: white !important;
+    }
+
+    .theme-purple .tag-soft {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+
+    .theme-purple .btn-join {
+        background: #7e22ce;
+        color: white;
+    }
+
+    .theme-blue .tag-soft {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .theme-blue .btn-join {
+        background: #0284c7;
+        color: white;
+    }
+
+    .theme-green .tag-soft {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .theme-green .btn-join {
+        background: #16a34a;
+        color: white;
+    }
+
+    .theme-orange .tag-soft {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+
+    .theme-orange .btn-join {
+        background: #ea580c;
+        color: white;
+    }
+
+    .theme-cyan .tag-soft {
+        background: #cffafe;
+        color: #0891b2;
+    }
+
+    .theme-cyan .btn-join {
+        background: #0891b2;
+        color: white;
+    }
+
+    .theme-red .tag-soft {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .theme-red .btn-join {
+        background: #dc2626;
+        color: white;
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="community-header-box">
+        <div class="pattern-overlay"></div>
+        <div class="accent-line"></div>
+        <div class="header-content">
+            <div class="icon-box-lg">📈</div>
+            <div>
+                <h4 class="header-title">Popüler Topluluklar</h4>
+                <p class="mb-0 text-muted">Bu hafta en çok katılım olan toplulukları keşfedin.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @{
+            var coms = new[] {
+               
+                new { Name = "80'ler Synth Müzik", Theme = "theme-purple", Icon = "🎧", Img = "https://images.pexels.com/photos/2479312/pexels-photo-2479312.jpeg?auto=compress&cs=tinysrgb&w=600", Badge = "🔥 Popüler", Desc = "Neon ışıklar ve retro ritimler.", Tags = new[]{"Synth", "Retro"}, Members = "248" },
+                new { Name = "Python Başlayanlar", Theme = "theme-blue", Icon = "💻", Img = "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=600", Badge = "🚀 Yükselişte", Desc = "Sıfırdan kodlama öğrenenler.", Tags = new[]{"Python", "Yazılım"}, Members = "512" },
+                new { Name = "Vegan Mutfak", Theme = "theme-green", Icon = "🥗", Img = "https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=600", Badge = "", Desc = "Sağlıklı bitkisel tarifler.", Tags = new[]{"Vegan", "Sağlık"}, Members = "324" },
+                new { Name = "Freelance Tasarım", Theme = "theme-orange", Icon = "🎨", Img = "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=600", Badge = "", Desc = "Grafik tasarımcılar için portfolyo eleştirileri.", Tags = new[]{"UI/UX", "Sanat"}, Members = "189" },
+                new { Name = "Sabah Koşusu Ekibi", Theme = "theme-cyan", Icon = "🏃", Img = "https://images.pexels.com/photos/2402777/pexels-photo-2402777.jpeg?auto=compress&cs=tinysrgb&w=600", Badge = "⚡ Aktif", Desc = "Her sabah enerjik bir başlangıç.", Tags = new[]{"Spor", "Fitness"}, Members = "156" },
+                new { Name = "Anime & Manga", Theme = "theme-red", Icon = "⛩️", Img = "https://images.pexels.com/photos/402028/pexels-photo-402028.jpeg?auto=compress&cs=tinysrgb&w=600", Badge = "", Desc = "Anime izleme partileri.", Tags = new[]{"Japon", "Anime"}, Members = "423" }
+                };
+        }
+
+        @foreach (var com in coms)
+        {
+            <div class="col-lg-4 col-md-6">
+                <div class="card-custom @com.Theme">
+                    <div class="card-img-wrapper">
+                        <img src="@com.Img" alt="@com.Name">
+                        @if (!string.IsNullOrEmpty(com.Badge))
+                        {
+                            <span class="card-badge">@com.Badge</span>
+                        }
+                    </div>
+                    <div class="card-icon-float">@com.Icon</div>
+                    <div class="card-body-custom">
+                        <h5 class="fw-bold mt-2">@com.Name</h5>
+                        <p class="text-muted small mb-3">@com.Desc</p>
+                        <div class="mb-3">
+                            @foreach (var tag in com.Tags)
+                            {
+                                <span class="tag-soft">@tag</span>
+                            }
+                        </div>
+                        <div class="small text-muted mb-3 fw-bold">👥 @com.Members üye</div>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <button class="btn-join" onclick="joinCommunity(this, '@com.Name.Replace("'", "\\'")')">Topluluğa Katıl ➜</button>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn-join btn-auth-needed shadow-sm">
+                                <i class="fa-solid fa-lock me-1"></i> Giriş Yap ve Katıl
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function joinCommunity(buttonElement, communityName) {
+        if(buttonElement.classList.contains('btn-joined')) return;
+
+        buttonElement.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        buttonElement.disabled = true;
+
+        fetch('/Home/JoinCommunity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: 'communityName=' + encodeURIComponent(communityName),
+            credentials: 'include'
+        })
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = '/Account/Login';
+                return;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.success) {
+                Swal.fire({
+                    title: 'Tebrikler! 🎉',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonColor: '#10b981'
+                });
+                buttonElement.innerHTML = 'Katılındı ✔';
+                buttonElement.classList.add('btn-joined');
+            }
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+            buttonElement.innerHTML = 'Topluluğa Katıl ➜';
+            buttonElement.disabled = false;
+        });
+    }
+</script>

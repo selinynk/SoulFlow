@@ -1,0 +1,67 @@
+﻿@model SoulFlow.Models.Event
+
+@{
+    ViewData["Title"] = "Yeni Etkinlik Oluştur";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-white py-3">
+                    <h3 class="fw-bold text-center" style="color: var(--nature-teal);">Yeni Etkinlik Planla</h3>
+                </div>
+                <div class="card-body p-4">
+
+                    @*  *@
+                    <form asp-action="Create" enctype="multipart/form-data" method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Etkinlik Başlığı</label>
+                            <input asp-for="Title" class="form-control" placeholder="Örn: Seramik Boyama" required />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Tarih ve Saat</label>
+                                <input asp-for="Date"
+                                       class="form-control"
+                                       type="datetime-local"
+                                       value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                                       required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Kontenjan</label>
+                                <input asp-for="Quota" class="form-control" type="number" min="1" value="10" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Konum</label>
+                            <input asp-for="Location" class="form-control" placeholder="Örn: Kadıköy Atölye" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Etkinlik Görseli</label>
+                            @*  *@
+                            <input type="file" asp-for="ImageFile" class="form-control" accept="image/*" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Açıklama</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Etkinlik detayları..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary fw-bold py-2 rounded-pill">
+                                <i class="fa-solid fa-plus me-2"></i> Etkinliği Oluştur
+                            </button>
+                            <a asp-action="Index" class="btn btn-light rounded-pill">İptal</a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
